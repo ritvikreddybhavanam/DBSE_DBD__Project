@@ -20,7 +20,8 @@ export const getMovies = async ({
                                     sortBy = "popularity.desc",
                                     year = "",
                                     genre = "",
-                                    rating = ""
+                                    rating = "",
+                                    language = ""
                                 } = {}) => {
     const response = await api.get("/tmdb/movies", {
         params: {
@@ -28,7 +29,8 @@ export const getMovies = async ({
             sortBy,
             year: year || undefined,
             genre: genre || undefined,
-            rating: rating || undefined
+            rating: rating || undefined,
+            language: language || undefined
         }
     });
 
@@ -158,5 +160,11 @@ export const getFilmBuffReviews = async (movieId) => {
         `/reviews/movie/${movieId}`
     );
 
+    return response.data;
+};
+
+
+export const getLanguages = async () => {
+    const response = await api.get("/tmdb/languages");
     return response.data;
 };

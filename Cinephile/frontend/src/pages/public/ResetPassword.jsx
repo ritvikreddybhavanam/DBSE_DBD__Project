@@ -85,7 +85,7 @@ const ResetPassword = () => {
                         <div className="mb-8 w-24 h-24">
                             <img
                                 src="https://lh3.googleusercontent.com/aida/AP1WRLuKBEZMLleKGt_5XBl8AMB3tKGJx6Gp9Anf2JEYe7bsGVaG1EO1_udLll6t97S5v7zqxYLR8_XlgALId9Oaj-7VQryGl8cHckuIVKVRlt6mG8pNpGclXFU9P6NRC2JIUqeNnAwegA5OdQ-TKsLqiX36IPI8qPdT5dA3DCxASwGhaJ1f3nyt8fPbwtTdpPBCE603hfEDIHn8aFWLI4cx8l3mG3D6hjFOMEsBXTow9E4U5IUD3pf4iz89ogc"
-                                alt="Film Buff Logo"
+                                alt="Cinephile 🎬 Logo"
                                 className="w-full h-full object-contain"
                             />
                         </div>
@@ -239,7 +239,7 @@ const ResetPassword = () => {
             <footer className="z-10 relative w-full bg-[#0B0D0F] border-t border-[#262626]">
                 <div className="max-w-[1400px] mx-auto px-5 md:px-16 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="font-bold text-2xl md:text-[32px] leading-10 text-[#43fe6d]">
-                        Film Buff
+                        Cinephile 🎬
                     </div>
 
                     <div className="flex gap-5 text-base leading-6 flex-wrap justify-center">
@@ -273,7 +273,7 @@ const ResetPassword = () => {
                     </div>
 
                     <div className="text-[#a0a0a0] text-base leading-6 text-center">
-                        © 2024 Film Buff. All rights reserved.
+                        © 2024 Cinephile 🎬. All rights reserved.
                     </div>
                 </div>
             </footer>

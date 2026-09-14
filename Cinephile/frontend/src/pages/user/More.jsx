@@ -44,6 +44,10 @@ function More() {
             title: "People",
             to: "/people"
         },
+        {
+            title: "Movies By Languages",
+            to: "/movies-by-languages"
+        }
 
     ];
 

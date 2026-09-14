@@ -483,7 +483,7 @@ function MovieDetails() {
                 }
 
                 /*
-                 * FILM BUFF REVIEWS
+                 * Cinephile 🎬 REVIEWS
                  */
 
                 if (
@@ -499,7 +499,7 @@ function MovieDetails() {
                     );
                 } else {
                     console.error(
-                        "Failed to load Film Buff reviews:",
+                        "Failed to load Cinephile 🎬 reviews:",
                         filmBuffReviewsResult.reason
                     );
 

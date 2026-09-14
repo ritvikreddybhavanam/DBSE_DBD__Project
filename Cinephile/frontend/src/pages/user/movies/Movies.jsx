@@ -60,10 +60,14 @@ const convertMovie = (movie) => {
 function Movies() {
     const [searchParams] = useSearchParams();
 
+    const language = searchParams.get("language") || "";
+
     const [movies, setMovies] = useState([]);
+
     const [search, setSearch] = useState(
         searchParams.get("search") || ""
     );
+
     const [genre, setGenre] = useState("All Genres");
     const [year, setYear] = useState("Any Year");
     const [rating, setRating] = useState("All Ratings");
@@ -75,6 +79,16 @@ function Movies() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
+    /*
+     * Reset pagination when language changes.
+     */
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [language]);
+
+    /*
+     * Load movies
+     */
     useEffect(() => {
         const loadMovies = async () => {
             try {
@@ -83,6 +97,13 @@ function Movies() {
 
                 let data;
 
+                /*
+                 * Search movies
+                 *
+                 * Note:
+                 * TMDB search does not use the language filter
+                 * from /discover/movie.
+                 */
                 if (search.trim() !== "") {
                     data = await searchMovies(
                         search.trim(),
@@ -128,11 +149,11 @@ function Movies() {
                     const selectedRating =
                         rating !== "All Ratings"
                             ? Number(
-                            rating.replace(
-                                "+ Stars",
-                                ""
-                            )
-                        ) * 2
+                                rating.replace(
+                                    "+ Stars",
+                                    ""
+                                )
+                            ) * 2
                             : "";
 
                     data = await getMovies({
@@ -140,14 +161,17 @@ function Movies() {
                         sortBy: tmdbSort,
                         year: selectedYear,
                         genre: selectedGenre,
-                        rating: selectedRating
+                        rating: selectedRating,
+                        language
                     });
                 }
 
-                let convertedMovies = (data.results || []).map(
-                    convertMovie
-                );
+                let convertedMovies =
+                    (data.results || []).map(convertMovie);
 
+                /*
+                 * Client-side decade filtering
+                 */
                 if (
                     search.trim() === "" &&
                     (
@@ -189,6 +213,7 @@ function Movies() {
 
                 setMovies([]);
                 setTotalPages(1);
+
                 setError(
                     "Unable to load movies. Please try again."
                 );
@@ -211,9 +236,13 @@ function Movies() {
         year,
         rating,
         sortBy,
-        currentPage
+        currentPage,
+        language
     ]);
 
+    /*
+     * Sort movies on the frontend
+     */
     const displayedMovies = useMemo(() => {
         return [...movies].sort((a, b) => {
             if (sortBy === "Newest") {
@@ -502,3 +531,4 @@ function Movies() {
 }
 
 export default Movies;
+

@@ -27,7 +27,7 @@ ${
                     to="/"
                     className="whitespace-nowrap font-headline-lg text-headline-lg font-bold tracking-[-0.02em] text-primary no-underline min-[701px]:text-[26px] min-[901px]:text-[32px]"
                 >
-                    Film Buff
+                    Cinephile 🎬
                 </Link>
 
                 <div className="hidden items-center gap-[18px] min-[701px]:flex min-[901px]:gap-8">

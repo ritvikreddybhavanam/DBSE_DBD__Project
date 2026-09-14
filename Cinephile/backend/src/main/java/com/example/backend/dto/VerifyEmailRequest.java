@@ -4,7 +4,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class RegisterRequest {
+public class VerifyEmailRequest {
+
+    @NotBlank
+    private String firebaseIdToken;
 
     @NotBlank
     private String firstname;
@@ -17,14 +20,19 @@ public class RegisterRequest {
     private String emailaddress;
 
     @NotBlank
-    private String phoneNumber;
-
-    @NotBlank
     @Size(min = 6)
     private String password;
 
     @NotBlank
     private String confirmPassword;
+
+    public String getFirebaseIdToken() {
+        return firebaseIdToken;
+    }
+
+    public void setFirebaseIdToken(String firebaseIdToken) {
+        this.firebaseIdToken = firebaseIdToken;
+    }
 
     public String getFirstname() {
         return firstname;
@@ -48,14 +56,6 @@ public class RegisterRequest {
 
     public void setEmailaddress(String emailaddress) {
         this.emailaddress = emailaddress;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
 
     public String getPassword() {

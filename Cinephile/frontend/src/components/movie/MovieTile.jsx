@@ -27,7 +27,7 @@ function MovieTile({ movie }) {
             </Link>
 
             <div className="text-[10px] text-[#00e054] leading-none mt-1 truncate">
-                {movie.rating || "Not Rated"}
+                {movie.rating != null ? movie.rating : "Not Rated"}
 
                 {movie.listCount && (
                     <span className="text-[#455260] text-[8px] ml-1">

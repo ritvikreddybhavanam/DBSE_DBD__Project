@@ -1,8 +1,12 @@
 import api from "./api";
 
+const parseResponse = (data) => {
+    return typeof data === "string" ? JSON.parse(data) : data;
+};
+
 export const getPersonDetails = async (personId) => {
     const response = await api.get(`/tmdb/person/${personId}`);
-    return response.data;
+    return parseResponse(response.data);
 };
 
 export const getPersonCredits = async (personId) => {
@@ -10,7 +14,7 @@ export const getPersonCredits = async (personId) => {
         `/tmdb/person/${personId}/credits`
     );
 
-    return response.data;
+    return parseResponse(response.data);
 };
 
 export const getPersonImages = async (personId) => {
@@ -18,7 +22,7 @@ export const getPersonImages = async (personId) => {
         `/tmdb/person/${personId}/images`
     );
 
-    return response.data;
+    return parseResponse(response.data);
 };
 
 export const getPersonExternalIds = async (personId) => {
@@ -26,5 +30,32 @@ export const getPersonExternalIds = async (personId) => {
         `/tmdb/person/${personId}/external-ids`
     );
 
-    return response.data;
+    return parseResponse(response.data);
+};
+
+export const getPopularPeople = async (page = 1) => {
+    const response = await api.get(
+        "/tmdb/people/popular",
+        {
+            params: {
+                page
+            }
+        }
+    );
+
+    return parseResponse(response.data);
+};
+
+export const searchPeople = async (query, page = 1) => {
+    const response = await api.get(
+        "/tmdb/people/search",
+        {
+            params: {
+                query,
+                page
+            }
+        }
+    );
+
+    return parseResponse(response.data);
 };

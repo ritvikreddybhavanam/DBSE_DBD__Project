@@ -8,7 +8,7 @@ function RatingSelector({ rating, onChange }) {
                     </label>
 
                     <span className="text-sm leading-5 text-[#99AABB]">
-                        Score this motion picture on our cinephile scale
+                        Score this motion picture on our Cinephile 🎬 scale
                     </span>
                 </div>
 

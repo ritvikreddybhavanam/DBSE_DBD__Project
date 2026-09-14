@@ -7,6 +7,8 @@ import InputField from "../../../components/boxoffice/InputField.jsx";
 import SelectField from "../../../components/boxoffice/SelectField.jsx";
 import TerritoryCard from "../../../components/boxoffice/TerritoryCard.jsx";
 
+import { runPrediction as sendPrediction } from "../../../services/predictionService.js";
+
 function BoxOfficePrediction() {
     const [movieTitle, setMovieTitle] = useState("Chronicles of Aethelgard");
     const [budget, setBudget] = useState("$165,000,000");
@@ -52,7 +54,9 @@ function BoxOfficePrediction() {
     const toggleGenre = (genre) => {
         setGenres((currentGenres) => {
             if (currentGenres.includes(genre)) {
-                return currentGenres.filter((item) => item !== genre);
+                return currentGenres.filter(
+                    (item) => item !== genre
+                );
             }
 
             return [...currentGenres, genre];
@@ -128,66 +132,63 @@ function BoxOfficePrediction() {
             );
 
             if (!movieTitle.trim()) {
-                throw new Error("Movie title is required.");
+                throw new Error(
+                    "Movie title is required."
+                );
             }
 
             if (!budgetValue || budgetValue <= 0) {
-                throw new Error("Please enter a valid production budget.");
+                throw new Error(
+                    "Please enter a valid production budget."
+                );
             }
 
             if (!runtimeValue || runtimeValue <= 0) {
-                throw new Error("Please enter a valid runtime.");
+                throw new Error(
+                    "Please enter a valid runtime."
+                );
             }
 
             if (!genres.length) {
-                throw new Error("Please select at least one genre.");
+                throw new Error(
+                    "Please select at least one genre."
+                );
             }
 
             const requestBody = {
-                title: movieTitle,
+                title: movieTitle.trim(),
                 budget: budgetValue,
                 runtime: runtimeValue,
                 releaseYear: Number(releaseYear),
-                releaseMonth: getReleaseMonthNumber(releaseMonth),
-                originalLanguage: getLanguageCode(language),
-                mainCountry: getCountryName(country),
+                releaseMonth:
+                    getReleaseMonthNumber(releaseMonth),
+                originalLanguage:
+                    getLanguageCode(language),
+                mainCountry:
+                    getCountryName(country),
                 genres: genres
             };
 
-            const response = await fetch(
-                "http://localhost:8080/api/prediction/predict",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(requestBody)
-                }
+            console.log(
+                "Prediction request:",
+                requestBody
             );
 
-            if (!response.ok) {
-                let errorMessage =
-                    `Prediction request failed: ${response.status}`;
+            const data =
+                await sendPrediction(requestBody);
 
-                try {
-                    const errorData = await response.json();
-
-                    if (errorData.message) {
-                        errorMessage = errorData.message;
-                    }
-                } catch {
-                    // Keep default error message
-                }
-
-                throw new Error(errorMessage);
-            }
-
-            const data = await response.json();
+            console.log(
+                "Prediction response:",
+                data
+            );
 
             setPrediction(data);
 
         } catch (error) {
-            console.error("Prediction error:", error);
+            console.error(
+                "Prediction error:",
+                error
+            );
 
             setPrediction(null);
 
@@ -209,16 +210,18 @@ function BoxOfficePrediction() {
         : 0;
 
     const predictionMultiplier =
-        predictedRevenue > 0 && budgetValue > 0
-            ? (predictedRevenue / budgetValue).toFixed(2)
+        predictedRevenue > 0 &&
+        budgetValue > 0
+            ? (
+                predictedRevenue /
+                budgetValue
+            ).toFixed(2)
             : null;
 
     return (
         <div className="w-full bg-surface min-h-screen">
 
             <Navbar />
-
-            {/* Hero / Header */}
 
             <section className="relative w-full overflow-hidden bg-surface-deep">
 
@@ -227,7 +230,6 @@ function BoxOfficePrediction() {
                 <div className="absolute top-20 right-10 w-[450px] h-[300px] bg-secondary-container/10 rounded-full blur-[120px] pointer-events-none" />
 
                 <div className="max-w-7xl mx-auto px-margin-sm md:px-margin-md pt-8 pb-10 relative z-10">
-
 
                     <div className="max-w-3xl">
 
@@ -255,14 +257,9 @@ function BoxOfficePrediction() {
 
             </section>
 
-
-            {/* Main Workspace */}
-
             <div className="max-w-7xl mx-auto px-margin-sm md:px-margin-md py-8 w-full">
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-                    {/* LEFT SIDE */}
 
                     <div className="lg:col-span-7 flex flex-col gap-6">
 
@@ -296,7 +293,6 @@ function BoxOfficePrediction() {
 
                             </div>
 
-
                             <form
                                 onSubmit={runPrediction}
                                 className="flex flex-col gap-5"
@@ -306,13 +302,14 @@ function BoxOfficePrediction() {
                                     label="Movie Title"
                                     value={movieTitle}
                                     onChange={(e) =>
-                                        setMovieTitle(e.target.value)
+                                        setMovieTitle(
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="Enter the movie title..."
                                     icon="title"
                                     required
                                 />
-
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
@@ -320,7 +317,9 @@ function BoxOfficePrediction() {
                                         label="Production Budget (USD)"
                                         value={budget}
                                         onChange={(e) =>
-                                            setBudget(e.target.value)
+                                            setBudget(
+                                                e.target.value
+                                            )
                                         }
                                         placeholder="e.g. $150,000,000"
                                         icon="attach_money"
@@ -331,7 +330,9 @@ function BoxOfficePrediction() {
                                         label="Runtime"
                                         value={runtime}
                                         onChange={(e) =>
-                                            setRuntime(e.target.value)
+                                            setRuntime(
+                                                e.target.value
+                                            )
                                         }
                                         placeholder="e.g. 148 min"
                                         icon="schedule"
@@ -341,14 +342,15 @@ function BoxOfficePrediction() {
 
                                 </div>
 
-
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                                     <SelectField
                                         label="Release Year"
                                         value={releaseYear}
                                         onChange={(e) =>
-                                            setReleaseYear(e.target.value)
+                                            setReleaseYear(
+                                                e.target.value
+                                            )
                                         }
                                         icon="calendar_today"
                                         options={[
@@ -379,7 +381,9 @@ function BoxOfficePrediction() {
                                         label="Release Month"
                                         value={releaseMonth}
                                         onChange={(e) =>
-                                            setReleaseMonth(e.target.value)
+                                            setReleaseMonth(
+                                                e.target.value
+                                            )
                                         }
                                         icon="event"
                                         options={[
@@ -436,14 +440,15 @@ function BoxOfficePrediction() {
 
                                 </div>
 
-
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                                     <SelectField
                                         label="Original Language"
                                         value={language}
                                         onChange={(e) =>
-                                            setLanguage(e.target.value)
+                                            setLanguage(
+                                                e.target.value
+                                            )
                                         }
                                         icon="translate"
                                         options={[
@@ -490,7 +495,9 @@ function BoxOfficePrediction() {
                                         label="Production Country"
                                         value={country}
                                         onChange={(e) =>
-                                            setCountry(e.target.value)
+                                            setCountry(
+                                                e.target.value
+                                            )
                                         }
                                         icon="public"
                                         options={[
@@ -531,9 +538,6 @@ function BoxOfficePrediction() {
 
                                 </div>
 
-
-                                {/* Genres */}
-
                                 <div className="flex flex-col gap-2.5 pt-2">
 
                                     <div className="flex items-center justify-between">
@@ -550,61 +554,65 @@ function BoxOfficePrediction() {
 
                                     <div className="flex flex-wrap gap-2 pt-1">
 
-                                        {allGenres.map((genre) => {
+                                        {allGenres.map(
+                                            (genre) => {
 
-                                            const selected =
-                                                genres.includes(genre);
+                                                const selected =
+                                                    genres.includes(
+                                                        genre
+                                                    );
 
-                                            return (
-                                                <button
-                                                    key={genre}
-                                                    type="button"
-                                                    onClick={() =>
-                                                        toggleGenre(genre)
-                                                    }
-                                                    className={`
-                                                        px-3.5 py-1.5
-                                                        rounded-full
-                                                        font-metadata
-                                                        text-metadata
-                                                        transition-all
-                                                        flex items-center
-                                                        gap-1.5
-                                                        ${
-                                                        selected
-                                                            ? "bg-primary text-on-primary font-semibold shadow-sm"
-                                                            : "bg-surface-muted text-on-surface hover:bg-surface-bright"
-                                                    }
-                                                    `}
-                                                >
+                                                return (
+                                                    <button
+                                                        key={genre}
+                                                        type="button"
+                                                        onClick={() =>
+                                                            toggleGenre(
+                                                                genre
+                                                            )
+                                                        }
+                                                        className={`
+                                                            px-3.5 py-1.5
+                                                            rounded-full
+                                                            font-metadata
+                                                            text-metadata
+                                                            transition-all
+                                                            flex items-center
+                                                            gap-1.5
+                                                            ${
+                                                            selected
+                                                                ? "bg-primary text-on-primary font-semibold shadow-sm"
+                                                                : "bg-surface-muted text-on-surface hover:bg-surface-bright"
+                                                        }
+                                                        `}
+                                                    >
 
-                                                    {selected && (
-                                                        <span className="material-symbols-outlined text-[16px]">
-                                                            check
+                                                        {selected && (
+                                                            <span className="material-symbols-outlined text-[16px]">
+                                                                check
+                                                            </span>
+                                                        )}
+
+                                                        <span>
+                                                            {genre}
                                                         </span>
-                                                    )}
 
-                                                    <span>
-                                                        {genre}
-                                                    </span>
-
-                                                </button>
-                                            );
-
-                                        })}
+                                                    </button>
+                                                );
+                                            }
+                                        )}
 
                                     </div>
 
                                 </div>
 
-
-                                {/* Predict Button */}
-
                                 <div className="pt-4">
 
                                     <button
                                         type="submit"
-                                        disabled={isPredicting}
+                                        disabled={
+                                            isPredicting
+                                        }
                                         className="group w-full py-4 px-6 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-headline-lg text-title-md font-bold tracking-tight transition-all duration-200 shadow-[0_4px_24px_rgba(67,254,109,0.25)] hover:shadow-[0_6px_32px_rgba(67,254,109,0.4)] flex items-center justify-center gap-3 cursor-pointer disabled:opacity-70"
                                     >
 
@@ -636,9 +644,6 @@ function BoxOfficePrediction() {
 
                         </div>
 
-
-                        {/* Error */}
-
                         {error && (
                             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-start gap-3">
 
@@ -652,9 +657,6 @@ function BoxOfficePrediction() {
 
                             </div>
                         )}
-
-
-                        {/* Information Cards */}
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
@@ -675,21 +677,13 @@ function BoxOfficePrediction() {
 
                     </div>
 
-
-                    {/* RIGHT SIDE */}
-
                     <div className="lg:col-span-5 flex flex-col gap-6 lg:sticky lg:top-24">
-
-                        {/* RESULT */}
 
                         <div className="flex flex-col gap-5">
 
                             <div className="bg-surface-container-low p-6 md:p-8 rounded-xl shadow-md relative overflow-hidden">
 
                                 <div className="absolute -right-12 -top-12 w-36 h-36 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
-
-
-                                {/* Result Header */}
 
                                 <div className="flex items-center justify-between pb-6">
 
@@ -719,9 +713,6 @@ function BoxOfficePrediction() {
 
                                 </div>
 
-
-                                {/* Error */}
-
                                 {error && (
                                     <div className="mb-5 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400">
 
@@ -739,9 +730,6 @@ function BoxOfficePrediction() {
 
                                     </div>
                                 )}
-
-
-                                {/* Revenue */}
 
                                 <div className="bg-surface-deep p-6 rounded-xl relative overflow-hidden flex flex-col items-center text-center">
 
@@ -782,9 +770,6 @@ function BoxOfficePrediction() {
 
                                     </div>
 
-
-                                    {/* Multiplier */}
-
                                     <div className="w-full mt-6 pt-4 bg-surface-container-lowest/70 p-3 rounded-lg flex items-center justify-between font-metadata text-metadata">
 
                                         <div className="text-left">
@@ -802,7 +787,6 @@ function BoxOfficePrediction() {
                                             </span>
 
                                         </div>
-
 
                                         <div className="text-right">
 
@@ -826,9 +810,6 @@ function BoxOfficePrediction() {
 
                                 </div>
 
-
-                                {/* Additional Information */}
-
                                 <div className="mt-6 flex flex-col gap-3">
 
                                     <div className="flex items-center justify-between">
@@ -842,7 +823,6 @@ function BoxOfficePrediction() {
                                         </span>
 
                                     </div>
-
 
                                     <div className="bg-surface-deep rounded-xl p-4">
 
@@ -859,11 +839,11 @@ function BoxOfficePrediction() {
                                             </span>
 
                                             <span className="font-bold text-text-main text-right">
-                                                {movieTitle || "Untitled Film"}
+                                                {movieTitle ||
+                                                    "Untitled Film"}
                                             </span>
 
                                         </div>
-
 
                                         <div className="py-2.5 flex items-center justify-between text-body-sm font-body-sm">
 
@@ -878,11 +858,11 @@ function BoxOfficePrediction() {
                                             </span>
 
                                             <span className="font-medium text-text-main">
-                                                {releaseMonth} {releaseYear}
+                                                {releaseMonth}{" "}
+                                                {releaseYear}
                                             </span>
 
                                         </div>
-
 
                                         <div className="py-2.5 flex items-center justify-between text-body-sm font-body-sm">
 
@@ -902,7 +882,6 @@ function BoxOfficePrediction() {
 
                                         </div>
 
-
                                         <div className="py-2.5 flex items-start justify-between text-body-sm font-body-sm gap-4">
 
                                             <span className="text-text-dim flex items-center gap-2 whitespace-nowrap">
@@ -918,14 +897,16 @@ function BoxOfficePrediction() {
                                             <div className="flex flex-wrap gap-1.5 justify-end">
 
                                                 {genres.length > 0 ? (
-                                                    genres.map((genre) => (
-                                                        <span
-                                                            key={genre}
-                                                            className="bg-surface-container px-2 py-0.5 rounded text-xs text-primary font-medium"
-                                                        >
-                                                            {genre}
-                                                        </span>
-                                                    ))
+                                                    genres.map(
+                                                        (genre) => (
+                                                            <span
+                                                                key={genre}
+                                                                className="bg-surface-container px-2 py-0.5 rounded text-xs text-primary font-medium"
+                                                            >
+                                                                {genre}
+                                                            </span>
+                                                        )
+                                                    )
                                                 ) : (
                                                     <span className="text-text-dim text-xs">
                                                         None selected
@@ -935,7 +916,6 @@ function BoxOfficePrediction() {
                                             </div>
 
                                         </div>
-
 
                                         <div className="py-2.5 flex items-center justify-between text-body-sm font-body-sm">
 
@@ -954,7 +934,6 @@ function BoxOfficePrediction() {
                                             </span>
 
                                         </div>
-
 
                                         <div className="py-2.5 flex items-center justify-between text-body-sm font-body-sm">
 
@@ -978,9 +957,6 @@ function BoxOfficePrediction() {
 
                                 </div>
 
-
-                                {/* Prediction Summary */}
-
                                 <div className="mt-6 bg-surface-deep p-4 rounded-xl">
 
                                     <div className="flex items-center justify-between mb-3">
@@ -995,7 +971,6 @@ function BoxOfficePrediction() {
 
                                     </div>
 
-
                                     <div className="grid grid-cols-2 gap-3">
 
                                         <div className="bg-surface-container p-3 rounded-lg">
@@ -1009,7 +984,6 @@ function BoxOfficePrediction() {
                                             </span>
 
                                         </div>
-
 
                                         <div className="bg-surface-container p-3 rounded-lg">
 
@@ -1033,9 +1007,6 @@ function BoxOfficePrediction() {
 
                                 </div>
 
-
-                                {/* Disclaimer */}
-
                                 <div className="mt-6 p-4 rounded-xl bg-surface-deep/80 text-text-dim flex items-start gap-3">
 
                                     <span className="material-symbols-outlined text-[20px] shrink-0 mt-0.5">
@@ -1055,10 +1026,6 @@ function BoxOfficePrediction() {
                                 </div>
 
                             </div>
-
-
-                            {/* Actions */}
-
 
                         </div>
 

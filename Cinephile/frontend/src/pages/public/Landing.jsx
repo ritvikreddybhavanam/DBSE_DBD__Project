@@ -2,7 +2,14 @@ import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import movieImage from "../../assets/images/image1.png";
 
+import {Link} from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
+
+
+
 const Landing = () => {
+    const {token} = useContext(AuthContext);
     return (
         <div className="min-h-screen overflow-x-hidden bg-[#0a0a0a] font-body-md text-body-md antialiased">
             <Navbar />
@@ -34,23 +41,27 @@ const Landing = () => {
                                 Immerse yourself in a curated gallery of cinematic
                                 excellence. Discover, rate, and meticulously catalog
                                 the films that move you in an environment designed
-                                for true cinephiles.
+                                for true Cinephile 🎬s.
                             </p>
 
                             <div className="flex flex-col gap-4 sm:flex-row">
-                                <button
-                                    type="button"
-                                    className="rounded-DEFAULT bg-primary-container px-8 py-3 font-title-md text-title-md text-on-primary-fixed transition-colors hover:bg-primary-fixed"
-                                >
-                                    Explore Movies
-                                </button>
+                                <Link to="/genres" className="cursor-pointer hover:underline">
+                                    <button
+                                        type="button"
+                                        className="rounded-DEFAULT bg-primary-container px-8 py-3 font-title-md text-title-md text-on-primary-fixed transition-colors hover:bg-primary-fixed"
+                                    >
+                                        Explore Movies
+                                    </button>
+                                </Link>
 
-                                <button
-                                    type="button"
-                                    className="rounded-DEFAULT border border-border-subtle bg-transparent px-8 py-3 font-title-md text-title-md text-on-surface transition-colors hover:bg-surface-variant"
-                                >
-                                    Join Film Buff
-                                </button>
+                                {
+                                    token ? "" :
+                                        <Link to="/register">
+                                            <button type="button" className="rounded-DEFAULT border border-border-subtle bg-transparent px-8 py-3 font-title-md text-title-md text-on-surface transition-colors hover:bg-surface-variant">
+                                                Join Cinephile 🎬
+                                            </button>
+                                        </Link>
+                                }
                             </div>
                         </div>
                     </div>

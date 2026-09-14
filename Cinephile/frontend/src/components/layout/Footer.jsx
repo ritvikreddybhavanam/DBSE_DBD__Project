@@ -10,11 +10,11 @@ function Footer() {
                         to="/"
                         className="font-['Hanken_Grotesk'] text-[32px] font-bold text-[#43fe6d] no-underline"
                     >
-                        Film Buff
+                        Cinephile 🎬
                     </Link>
 
                     <p className="mt-2 font-['Inter'] text-base text-[#a0a0a0]">
-                        © 2026 Film Buff. All rights reserved.
+                        © 2026 Cinephile 🎬. All rights reserved.
                     </p>
                 </div>
 

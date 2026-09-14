@@ -31,7 +31,7 @@ function Login() {
                 password
             });
 
-            navigate("/dashboard");
+            navigate("/dashboard", {replace: true});
         } catch (error) {
             console.error("Login failed:", error);
 
@@ -226,7 +226,7 @@ function Login() {
             <footer className="relative z-20 w-full border-t border-[#262626] bg-[#0B0D0F]">
                 <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-6 px-5 py-8 md:flex-row md:px-16">
                     <div className="font-[Hanken_Grotesk,sans-serif] text-[32px] font-bold leading-10 text-[#43fe6d]">
-                        Film Buff
+                        Cinephile 🎬
                     </div>
 
                     <nav className="flex flex-wrap justify-center gap-6 text-base text-[#a0a0a0]">
@@ -260,7 +260,7 @@ function Login() {
                     </nav>
 
                     <div className="text-base text-[#a0a0a0]">
-                        © 2024 Film Buff. All rights reserved.
+                        © 2024 Cinephile 🎬. All rights reserved.
                     </div>
                 </div>
             </footer>

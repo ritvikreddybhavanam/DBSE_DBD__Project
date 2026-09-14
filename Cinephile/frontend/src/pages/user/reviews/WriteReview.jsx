@@ -90,63 +90,56 @@ function WriteReview() {
     };
 
     const handlePublishReview = async () => {
-        if (!reviewTitle.trim()) {
-            alert("Please enter a review headline.");
-            return;
-        }
-
-        if (!reviewText.trim()) {
-            alert("Please write your review.");
-            return;
-        }
-
-        if (!movie) {
-            alert("Movie details are not available.");
-            return;
-        }
-
-        if (!movieId) {
-            alert("Movie ID is missing.");
+        if (!reviewTitle.trim() || !reviewText.trim()) {
+            alert("Please enter a review title and review.");
             return;
         }
 
         try {
-            setPublishing(true);
+            const year = movie.release_date
+                ? Number(movie.release_date.substring(0, 4))
+                : null;
+
+            const poster = movie.poster_path
+                ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                : null;
+
+            const genre = Array.isArray(movie.genres)
+                ? movie.genres.map((genre) => genre.name).join(", ")
+                : null;
 
             const review = {
                 movieId: Number(movieId),
+                movieTitle: movie.title,
+                poster,
+                year,
+                genre,
+                service: null,
+
                 rating: Number(rating),
                 title: reviewTitle.trim(),
                 content: reviewText.trim(),
+
                 watchedDate: watchedDate || null,
                 viewingFormat,
                 rewatch,
                 spoilers,
-                visibility,
+                visibility
             };
-
-            console.log("Publishing review:", review);
 
             await createReview(review);
 
             alert("Review published successfully!");
+            navigate(`/movies/${movieId}?section=reviews`);
 
-            navigate(
-                `/movies/${movieId}?section=reviews`
-            );
         } catch (error) {
-            console.error(
-                "Failed to publish review:",
-                error
-            );
+            console.error("Error publishing review:", error);
 
-            const message =
+            alert(
+                error.response?.data?.message ||
                 error.response?.data ||
-                "Failed to publish review.";
-
-            alert(message);
-        } finally {
-            setPublishing(false);
+                "Failed to publish review."
+            );
         }
     };
 
@@ -418,7 +411,7 @@ function WriteReview() {
                                             </label>
 
                                             <span className="text-sm leading-5 text-[#99AABB]">
-                                                Score this motion picture on our cinephile scale
+                                                Score this motion picture on our Cinephile 🎬 scale
                                             </span>
                                         </div>
 

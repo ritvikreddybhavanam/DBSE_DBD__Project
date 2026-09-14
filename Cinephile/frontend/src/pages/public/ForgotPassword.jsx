@@ -92,7 +92,7 @@ const ForgotPassword = () => {
             <footer className="bg-[#0B0D0F] border-t border-[#262626] w-full z-20 relative">
                 <div className="max-w-[1400px] mx-auto px-5 md:px-16 py-8 flex flex-col md:flex-row justify-between items-center w-full">
                     <div className="font-['Hanken_Grotesk'] text-[32px] leading-[40px] font-bold text-[#43FE6D] mb-4 md:mb-0">
-                        Film Buff
+                        Cinephile 🎬
                     </div>
 
                     <div className="flex flex-wrap justify-center gap-6 mb-4 md:mb-0">
@@ -123,7 +123,7 @@ const ForgotPassword = () => {
                     </div>
 
                     <div className="font-['Inter'] text-base leading-6 text-[#A0A0A0]">
-                        © 2024 Film Buff. All rights reserved.
+                        © 2024 Cinephile 🎬. All rights reserved.
                     </div>
                 </div>
             </footer>

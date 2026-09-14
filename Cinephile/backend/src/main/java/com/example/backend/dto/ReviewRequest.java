@@ -14,6 +14,12 @@ public class ReviewRequest {
     private Boolean spoilers;
     private String visibility;
 
+    private String movieTitle;
+    private String poster;
+    private Integer year;
+    private String genre;
+    private String service;
+
     public ReviewRequest() {
     }
 
@@ -87,5 +93,45 @@ public class ReviewRequest {
 
     public void setVisibility(String visibility) {
         this.visibility = visibility;
+    }
+
+    public String getMovieTitle() {
+        return movieTitle;
+    }
+
+    public void setMovieTitle(String movieTitle) {
+        this.movieTitle = movieTitle;
+    }
+
+    public String getPoster() {
+        return poster;
+    }
+
+    public void setPoster(String poster) {
+        this.poster = poster;
+    }
+
+    public Integer getYear() {
+        return year;
+    }
+
+    public void setYear(Integer year) {
+        this.year = year;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public String getService() {
+        return service;
+    }
+
+    public void setService(String service) {
+        this.service = service;
     }
 }

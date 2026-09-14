@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -28,26 +29,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        String requestUri = request.getRequestURI();
+
         System.out.println(
                 "JWT FILTER: " +
                         request.getMethod() +
                         " " +
-                        request.getRequestURI()
+                        requestUri
         );
 
         String authorizationHeader =
                 request.getHeader("Authorization");
 
-        System.out.println(
-                "AUTHORIZATION HEADER: " +
-                        authorizationHeader
-        );
-
         if (authorizationHeader == null ||
                 !authorizationHeader.startsWith("Bearer ")) {
 
             System.out.println(
-                    "JWT FILTER: No Bearer token"
+                    "JWT FILTER: No Bearer token - continuing"
             );
 
             filterChain.doFilter(request, response);
@@ -55,7 +53,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token =
-                authorizationHeader.substring(7);
+                authorizationHeader.substring(7).trim();
+
+        if (token.isEmpty()) {
+
+            System.out.println(
+                    "JWT FILTER: Empty token - continuing"
+            );
+
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         try {
 
@@ -75,35 +83,44 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         "JWT EMAIL: " + email
                 );
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                email,
-                                null,
-                                Collections.emptyList()
-                        );
+                if (email != null &&
+                        !email.isBlank()) {
 
-                SecurityContextHolder
-                        .getContext()
-                        .setAuthentication(authentication);
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    email,
+                                    null,
+                                    Collections.emptyList()
+                            );
 
-                System.out.println(
-                        "SECURITY CONTEXT AUTHENTICATED: " +
-                                SecurityContextHolder
-                                        .getContext()
-                                        .getAuthentication()
-                                        .getName()
-                );
+                    SecurityContextHolder
+                            .getContext()
+                            .setAuthentication(
+                                    authentication
+                            );
+
+                    System.out.println(
+                            "JWT FILTER: Authentication set"
+                    );
+                }
             }
 
         } catch (Exception e) {
 
             System.out.println(
-                    "JWT ERROR: " + e.getMessage()
+                    "JWT ERROR: " +
+                            e.getClass().getSimpleName() +
+                            " - " +
+                            e.getMessage()
             );
 
             SecurityContextHolder
                     .clearContext();
         }
+
+        System.out.println(
+                "JWT FILTER: Continuing request"
+        );
 
         filterChain.doFilter(request, response);
     }

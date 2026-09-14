@@ -2,10 +2,14 @@ package com.example.backend.service;
 
 import com.example.backend.dto.LoginRequest;
 import com.example.backend.dto.LoginResponse;
-import com.example.backend.dto.RegisterRequest;
+import com.example.backend.dto.VerifyEmailRequest;
 import com.example.backend.entity.User;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.security.JwtService;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +23,16 @@ public class AuthService {
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService) {
-
+            JwtService jwtService
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
 
-    public String register(RegisterRequest request) {
+    public String verifyEmailAndCreateAccount(
+            VerifyEmailRequest request
+    ) {
 
         if (!request.getPassword()
                 .equals(request.getConfirmPassword())) {
@@ -36,19 +42,58 @@ public class AuthService {
             );
         }
 
-        if (userRepository.existsByEmailaddress(
-                request.getEmailaddress())) {
+        FirebaseToken decodedToken;
+
+        try {
+
+            decodedToken =
+                    FirebaseAuth.getInstance()
+                            .verifyIdToken(
+                                    request.getFirebaseIdToken()
+                            );
+
+        } catch (Exception e) {
 
             throw new RuntimeException(
-                    "Email already registered"
+                    "Invalid Firebase verification token"
             );
         }
 
-        if (userRepository.existsByPhoneNumber(
-                request.getPhoneNumber())) {
+        String firebaseEmail =
+                decodedToken.getEmail();
+
+        Object emailVerified =
+                decodedToken.getClaims().get("email_verified");
+
+        if (firebaseEmail == null) {
 
             throw new RuntimeException(
-                    "Phone number already registered"
+                    "Firebase email was not found"
+            );
+        }
+
+        if (!Boolean.TRUE.equals(emailVerified)) {
+
+            throw new RuntimeException(
+                    "Email has not been verified"
+            );
+        }
+
+        if (!firebaseEmail.equalsIgnoreCase(
+                request.getEmailaddress()
+        )) {
+
+            throw new RuntimeException(
+                    "Email does not match the verified Firebase account"
+            );
+        }
+
+        if (userRepository.existsByEmailaddress(
+                request.getEmailaddress()
+        )) {
+
+            throw new RuntimeException(
+                    "Email already registered"
             );
         }
 
@@ -66,10 +111,6 @@ public class AuthService {
                 request.getEmailaddress()
         );
 
-        user.setPhoneNumber(
-                request.getPhoneNumber()
-        );
-
         user.setPassword(
                 passwordEncoder.encode(
                         request.getPassword()
@@ -78,20 +119,23 @@ public class AuthService {
 
         userRepository.save(user);
 
-        return "Registration successful";
+        return "Email verified and account created successfully";
     }
 
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponse login(
+            LoginRequest request
+    ) {
 
-        User user = userRepository
-                .findByEmailaddress(
-                        request.getEmailaddress()
-                )
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Invalid email or password"
+        User user =
+                userRepository
+                        .findByEmailaddress(
+                                request.getEmailaddress()
                         )
-                );
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Invalid email or password"
+                                )
+                        );
 
         if (!passwordEncoder.matches(
                 request.getPassword(),
@@ -103,9 +147,10 @@ public class AuthService {
             );
         }
 
-        String token = jwtService.generateToken(
-                user.getEmailaddress()
-        );
+        String token =
+                jwtService.generateToken(
+                        user.getEmailaddress()
+                );
 
         return new LoginResponse(
                 "Login successful",

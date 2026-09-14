@@ -8,7 +8,7 @@ function ReviewCard({ review }) {
         : (
             `${review.firstname || review.user?.firstname || ""} ${
     review.lastname || review.user?.lastname || ""
-}`.trim() || "Film Buff User"
+}`.trim() || "Cinephile 🎬 User"
         );
 
     const rating = isTmdb
@@ -72,7 +72,7 @@ function ReviewCard({ review }) {
                                 <span className="rounded-full border border-[#303946] bg-[#070a0d] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">
                                     {isTmdb
                                         ? "TMDB"
-                                        : "Film Buff"}
+                                        : "Cinephile 🎬"}
                                 </span>
 
                             </div>
@@ -251,7 +251,7 @@ function ReviewSection({
                     </h2>
 
                     <p className="mt-1 text-sm text-gray-500">
-                        Reviews from TMDB and the Film Buff community
+                        Reviews from TMDB and the Cinephile 🎬 community
                     </p>
 
                 </div>

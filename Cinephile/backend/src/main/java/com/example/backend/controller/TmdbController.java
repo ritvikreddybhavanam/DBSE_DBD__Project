@@ -4,6 +4,9 @@ import com.example.backend.service.TmdbService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/tmdb")
 @CrossOrigin(origins = "http://localhost:5173")
@@ -37,7 +40,8 @@ public class TmdbController {
             @RequestParam(defaultValue = "popularity.desc") String sortBy,
             @RequestParam(required = false) String year,
             @RequestParam(required = false) String genre,
-            @RequestParam(required = false) String rating
+            @RequestParam(required = false) String rating,
+            @RequestParam(required = false) String language
     ) {
         return ResponseEntity.ok(
                 tmdbService.getMovies(
@@ -45,7 +49,8 @@ public class TmdbController {
                         sortBy,
                         year,
                         genre,
-                        rating
+                        rating,
+                        language
                 )
         );
     }
@@ -130,6 +135,31 @@ public class TmdbController {
         );
     }
 
+    /*
+     * =========================
+     * PEOPLE
+     * =========================
+     */
+
+    @GetMapping("/people/popular")
+    public ResponseEntity<String> getPopularPeople(
+            @RequestParam(defaultValue = "1") int page
+    ) {
+        return ResponseEntity.ok(
+                tmdbService.getPopularPeople(page)
+        );
+    }
+
+    @GetMapping("/people/search")
+    public ResponseEntity<String> searchPeople(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "1") int page
+    ) {
+        return ResponseEntity.ok(
+                tmdbService.searchPeople(query, page)
+        );
+    }
+
     @GetMapping("/person/{personId}")
     public ResponseEntity<String> getPersonDetails(
             @PathVariable Long personId
@@ -166,12 +196,20 @@ public class TmdbController {
         );
     }
 
-    /* tempoerary */
+    @GetMapping("languages")
+    public List<Map<String, Object>> getLanguages() {
+        return tmdbService.getLanguages();
+    }
+
+    /*
+     * =========================
+     * TEST
+     * =========================
+     */
 
     @GetMapping("/test")
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("TMDB API is working");
     }
-
 
 }

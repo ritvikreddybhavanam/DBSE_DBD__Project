@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/watched-movies")
+@RequestMapping("/api/watched")
 @CrossOrigin(origins = "http://localhost:5173")
 public class WatchedMovieController {
 
@@ -19,82 +19,62 @@ public class WatchedMovieController {
     public WatchedMovieController(
             WatchedMovieService watchedMovieService
     ) {
-        this.watchedMovieService =
-                watchedMovieService;
+        this.watchedMovieService = watchedMovieService;
     }
 
     @GetMapping
-    public ResponseEntity<List<WatchedMovie>>
-    getWatchedMovies(
+    public ResponseEntity<List<WatchedMovie>> getWatchedMovies(
             Authentication authentication
     ) {
 
-        String email =
-                authentication.getName();
+        String email = authentication.getName();
 
         return ResponseEntity.ok(
-                watchedMovieService
-                        .getWatchedMovies(email)
+                watchedMovieService.getWatchedMovies(email)
         );
     }
 
     @PostMapping
-    public ResponseEntity<WatchedMovie>
-    addWatchedMovie(
+    public ResponseEntity<WatchedMovie> addWatchedMovie(
             Authentication authentication,
             @RequestBody Map<String, Object> request
     ) {
 
-        String email =
-                authentication.getName();
+        String email = authentication.getName();
 
-        Long movieId =
-                Long.valueOf(
-                        request
-                                .get("movieId")
-                                .toString()
-                );
+        Long movieId = Long.valueOf(
+                request.get("movieId").toString()
+        );
 
-        String title =
-                request.get("title").toString();
+        String title = request.get("title").toString();
 
         String poster =
                 request.get("poster") == null
                         ? null
-                        : request
-                        .get("poster")
-                        .toString();
+                        : request.get("poster").toString();
 
         Integer year =
                 request.get("year") == null
                         ? null
                         : Integer.valueOf(
-                        request
-                                .get("year")
-                                .toString()
+                        request.get("year").toString()
                 );
 
         String genre =
                 request.get("genre") == null
                         ? null
-                        : request
-                        .get("genre")
-                        .toString();
+                        : request.get("genre").toString();
 
         String service =
                 request.get("service") == null
                         ? null
-                        : request
-                        .get("service")
-                        .toString();
+                        : request.get("service").toString();
 
         Double rating =
                 request.get("rating") == null
                         ? null
                         : Double.valueOf(
-                        request
-                                .get("rating")
-                                .toString()
+                        request.get("rating").toString()
                 );
 
         return ResponseEntity.ok(
@@ -112,14 +92,12 @@ public class WatchedMovieController {
     }
 
     @DeleteMapping("/{movieId}")
-    public ResponseEntity<String>
-    removeWatchedMovie(
+    public ResponseEntity<String> removeWatchedMovie(
             Authentication authentication,
             @PathVariable Long movieId
     ) {
 
-        String email =
-                authentication.getName();
+        String email = authentication.getName();
 
         watchedMovieService.removeWatchedMovie(
                 email,
@@ -132,14 +110,12 @@ public class WatchedMovieController {
     }
 
     @GetMapping("/check/{movieId}")
-    public ResponseEntity<Boolean>
-    checkWatched(
+    public ResponseEntity<Boolean> checkWatched(
             Authentication authentication,
             @PathVariable Long movieId
     ) {
 
-        String email =
-                authentication.getName();
+        String email = authentication.getName();
 
         return ResponseEntity.ok(
                 watchedMovieService.isWatched(

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-    RecaptchaVerifier,
-    signInWithPhoneNumber
+    createUserWithEmailAndPassword,
+    sendEmailVerification
 } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 
@@ -15,7 +15,6 @@ function Register() {
     const [firstname, setFirstname] = useState("");
     const [lastname, setLastname] = useState("");
     const [emailaddress, setEmailaddress] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -29,7 +28,9 @@ function Register() {
         setError("");
 
         if (!firstname.trim() || !lastname.trim()) {
-            setError("Please enter your first name and last name.");
+            setError(
+                "Please enter your first name and last name."
+            );
             return;
         }
 
@@ -38,18 +39,19 @@ function Register() {
             return;
         }
 
-        if (!phoneNumber.trim()) {
-            setError("Please enter your phone number.");
-            return;
-        }
-
-        if (!/^[0-9]{10}$/.test(phoneNumber)) {
-            setError("Please enter a valid 10-digit phone number.");
+        if (
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                emailaddress.trim()
+            )
+        ) {
+            setError("Please enter a valid email address.");
             return;
         }
 
         if (password.length < 6) {
-            setError("Password must be at least 6 characters.");
+            setError(
+                "Password must be at least 6 characters."
+            );
             return;
         }
 
@@ -68,109 +70,90 @@ function Register() {
         try {
             setLoading(true);
 
-            const fullPhoneNumber = `+91${phoneNumber}`;
-
-            if (window.recaptchaVerifier) {
-                try {
-                    window.recaptchaVerifier.clear();
-                } catch (error) {
-                    console.log("Previous reCAPTCHA cleared.");
-                }
-
-                window.recaptchaVerifier = null;
-            }
-
-            const recaptchaContainer =
-                document.getElementById("recaptcha-container");
-
-            if (recaptchaContainer) {
-                recaptchaContainer.innerHTML = "";
-            }
-
-            window.recaptchaVerifier = new RecaptchaVerifier(
-                auth,
-                "recaptcha-container",
-                {
-                    size: "invisible"
-                }
-            );
-
-            const confirmationResult =
-                await signInWithPhoneNumber(
+            const userCredential =
+                await createUserWithEmailAndPassword(
                     auth,
-                    fullPhoneNumber,
-                    window.recaptchaVerifier
+                    emailaddress.trim(),
+                    password
                 );
 
-            window.confirmationResult = confirmationResult;
+            await sendEmailVerification(
+                userCredential.user
+            );
 
             sessionStorage.setItem(
                 "pendingRegistration",
                 JSON.stringify({
                     firstname: firstname.trim(),
                     lastname: lastname.trim(),
-                    emailaddress: emailaddress.trim(),
-                    phoneNumber: fullPhoneNumber,
-                    password,
-                    confirmPassword
+                    emailaddress: emailaddress.trim()
                 })
             );
 
-            navigate("/verify-number");
+            navigate("/verify-email", {
+                replace: true
+            });
 
         } catch (error) {
             console.error(
-                "Firebase phone authentication failed:",
+                "Firebase registration failed:",
                 error
             );
 
-            if (error.code === "auth/invalid-phone-number") {
-                setError("Please enter a valid phone number.");
+            if (
+                error.code ===
+                "auth/email-already-in-use"
+            ) {
+                setError(
+                    "An account already exists with this email address."
+                );
 
-            } else if (error.code === "auth/too-many-requests") {
+            } else if (
+                error.code ===
+                "auth/invalid-email"
+            ) {
+                setError(
+                    "Please enter a valid email address."
+                );
+
+            } else if (
+                error.code ===
+                "auth/weak-password"
+            ) {
+                setError(
+                    "Password is too weak. Please use a stronger password."
+                );
+
+            } else if (
+                error.code ===
+                "auth/operation-not-allowed"
+            ) {
+                setError(
+                    "Email/password authentication is not enabled in Firebase."
+                );
+
+            } else if (
+                error.code ===
+                "auth/network-request-failed"
+            ) {
+                setError(
+                    "Network error. Please check your internet connection."
+                );
+
+            } else if (
+                error.code ===
+                "auth/too-many-requests"
+            ) {
                 setError(
                     "Too many attempts. Please try again later."
-                );
-
-            } else if (error.code === "auth/quota-exceeded") {
-                setError(
-                    "SMS quota exceeded. Please try again later."
-                );
-
-            } else if (error.code === "auth/operation-not-allowed") {
-                setError(
-                    "SMS verification is not enabled for this region. Please enable India (+91) in Firebase SMS region settings."
-                );
-
-            } else if (error.code === "auth/captcha-check-failed") {
-                setError(
-                    "reCAPTCHA verification failed. Please try again."
                 );
 
             } else {
                 setError(
                     error.message ||
-                    "Unable to send OTP. Please try again."
+                    "Unable to create your account. Please try again."
                 );
             }
-
-            if (window.recaptchaVerifier) {
-                try {
-                    window.recaptchaVerifier.clear();
-                } catch (clearError) {
-                    console.log("Unable to clear reCAPTCHA.");
-                }
-
-                window.recaptchaVerifier = null;
-            }
-
-            const recaptchaContainer =
-                document.getElementById("recaptcha-container");
-
-            if (recaptchaContainer) {
-                recaptchaContainer.innerHTML = "";
-            }
-
         } finally {
             setLoading(false);
         }
@@ -180,6 +163,7 @@ function Register() {
         <div className="relative min-h-screen overflow-x-hidden bg-[#0b0d0f] font-['Inter'] text-[#e0e3e8]">
 
             <div className="fixed inset-0 -z-0">
+
                 <div
                     className="absolute inset-0 bg-cover bg-center opacity-25"
                     style={{
@@ -188,9 +172,10 @@ function Register() {
                     }}
                 />
 
-                <div className="absolute inset-0 bg-[#0b0d0f]/75" />
+                <div className="absolute inset-0 bg-[#0b0d0f]/75"/>
 
-                <div className="absolute inset-0 bg-gradient-to-b from-[#0b0d0f]/50 via-[#0b0d0f]/80 to-[#0b0d0f]" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0b0d0f]/50 via-[#0b0d0f]/80 to-[#0b0d0f]"/>
+
             </div>
 
             <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
@@ -202,17 +187,17 @@ function Register() {
                         <div className="border-b border-[#262c30] px-6 py-8 text-center sm:px-10">
 
                             <h1 className="font-['Hanken_Grotesk'] text-4xl font-extrabold tracking-tight text-[#43fe6d]">
-                                Film Buff
+                                Cinephile 🎬
                             </h1>
 
-                            <div className="mx-auto mt-4 h-1 w-12 rounded-full bg-[#43fe6d]" />
+                            <div className="mx-auto mt-4 h-1 w-12 rounded-full bg-[#43fe6d]"/>
 
                             <h2 className="mt-5 font-['Hanken_Grotesk'] text-2xl font-bold text-[#f1f3f4]">
                                 Create your account
                             </h2>
 
                             <p className="mt-2 text-sm leading-6 text-[#92999f]">
-                                Join Film Buff and start curating your
+                                Join Cinephile 🎬 and start curating your
                                 personal movie collection.
                             </p>
 
@@ -242,7 +227,6 @@ function Register() {
                                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
                                     <div>
-
                                         <label
                                             htmlFor="firstName"
                                             className="mb-2 block text-sm font-medium text-[#c7ced2]"
@@ -264,11 +248,9 @@ function Register() {
                                             required
                                             className="h-12 w-full rounded-lg border border-[#2a3035] bg-[#181c20] px-4 text-sm text-[#e0e3e8] outline-none transition-all placeholder:text-[#5f666b] focus:border-[#43fe6d] focus:bg-[#1a1f23] focus:ring-2 focus:ring-[#43fe6d]/10"
                                         />
-
                                     </div>
 
                                     <div>
-
                                         <label
                                             htmlFor="lastName"
                                             className="mb-2 block text-sm font-medium text-[#c7ced2]"
@@ -290,7 +272,6 @@ function Register() {
                                             required
                                             className="h-12 w-full rounded-lg border border-[#2a3035] bg-[#181c20] px-4 text-sm text-[#e0e3e8] outline-none transition-all placeholder:text-[#5f666b] focus:border-[#43fe6d] focus:bg-[#1a1f23] focus:ring-2 focus:ring-[#43fe6d]/10"
                                         />
-
                                     </div>
 
                                 </div>
@@ -326,52 +307,6 @@ function Register() {
                                         />
 
                                     </div>
-
-                                </div>
-
-                                <div>
-
-                                    <label
-                                        htmlFor="phoneNumber"
-                                        className="mb-2 block text-sm font-medium text-[#c7ced2]"
-                                    >
-                                        Phone Number
-                                    </label>
-
-                                    <div className="relative">
-
-                                        <span className="material-symbols-outlined pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-[#687078]">
-                                            phone
-                                        </span>
-
-                                        <input
-                                            id="phoneNumber"
-                                            name="phoneNumber"
-                                            type="tel"
-                                            inputMode="numeric"
-                                            placeholder="9876543210"
-                                            value={phoneNumber}
-                                            onChange={(event) => {
-                                                const value =
-                                                    event.target.value.replace(
-                                                        /\D/g,
-                                                        ""
-                                                    );
-
-                                                if (value.length <= 10) {
-                                                    setPhoneNumber(value);
-                                                }
-                                            }}
-                                            maxLength={10}
-                                            required
-                                            className="h-12 w-full rounded-lg border border-[#2a3035] bg-[#181c20] pl-12 pr-4 text-sm tracking-wide text-[#e0e3e8] outline-none transition-all placeholder:text-[#5f666b] focus:border-[#43fe6d] focus:bg-[#1a1f23] focus:ring-2 focus:ring-[#43fe6d]/10"
-                                        />
-
-                                    </div>
-
-                                    <p className="mt-1.5 text-xs text-[#626a70]">
-                                        Enter your 10-digit mobile number.
-                                    </p>
 
                                 </div>
 
@@ -535,8 +470,6 @@ function Register() {
 
                                 </div>
 
-                                <div id="recaptcha-container"></div>
-
                                 <button
                                     type="submit"
                                     disabled={loading}
@@ -549,7 +482,7 @@ function Register() {
                                                 progress_activity
                                             </span>
 
-                                            Sending OTP...
+                                            Sending Verification Email...
                                         </>
                                     ) : (
                                         <>
@@ -587,7 +520,7 @@ function Register() {
                     <div className="mt-6 text-center">
 
                         <p className="text-xs text-[#555d62]">
-                            © 2024 Film Buff. All rights reserved.
+                            © 2024 Cinephile 🎬. All rights reserved.
                         </p>
 
                     </div>
